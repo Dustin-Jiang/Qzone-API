@@ -16,7 +16,7 @@
 - `content`: 说说完整正文；
 - `pictures`: 一个`list`，其中包含若干个`Media`对象，用来表示说说中的附图和视频，后面会讲到；
 - `origin`: 一个`Emotion`对象或`None`，被转发的原说说；
-- `location`: 位置信息，是一个dict；
+- `location`: 位置信息，是一个`dict`；
 - `source`: 发布说说所用的设备或途径名称；
 - `forwardn`: 被转发的次数；
 - `like`: 一个`dict`，键为点赞的人的QQ号，值为二元组`(昵称, 头像Picture对象)`。
@@ -38,9 +38,9 @@
 `Media`对象表示一个媒体，包含以下属性或方法：
  - `url`：图片(或视频缩略图)；
  - `type`：媒体类型，为`Video`或`Image`；
- - `video_url`：视频url __（请注意视频URL随cookie失效而失效，要及时下载）__；
+ - `video_url`：视频URL __（请注意视频URL随cookie失效而失效，要及时下载）__；
  - `open`：会返回一个类似于文件的对象，可以调用这个对象的`read()`方法来读出图片数据；
- - `open_video()`：第一个返回值为类似于文件的对象，可以调用这个对象的`read()`方法读出视频数据；第二个返回值为请求时返回的错误(str型)。
+ - `open_video()`：第一个返回值为类似于文件的对象，可以调用这个对象的`read()`方法读出视频数据；第二个返回值为请求时返回的错误(`str`型)。
 
 ## 特别提供的小工具
 
@@ -55,3 +55,19 @@
 作者已经尽量进行了测试，至今作者本人已用这个模块下载过近十万条说说，在此过程中随时修复新发现的问题，事实证明这个模块十分稳定。但毕竟QQ空间构造复杂，如果您在使用时遇到了错误，请在issue中描述清楚出错的说说有什么样的特殊性，最好截图，我将会尽力解决。
 
 如果有任何和QQ空间接口相关的建议或探索进展，也请与我联系，我很乐意继续扩充这个项目的功能！
+
+
+## 接口分析
+1. 好友列表
+  返回带`Callback`的JSON
+
+  ```
+  https://h5.qzone.qq.com/proxy/domain/r.qzone.qq.com/cgi-bin/tfriend/friend_show_qqfriends.cgi?uin={QQ号}&follow_flag=1&groupface_flag=0&fupdate=1&g_tk={tk数据值}/
+  ```
+  
+2. 顺序动态
+  返回带`Callback`的JSON
+
+  ```
+  https://user.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds3_html_more?uin={QQ号}&scope=0&view=1&flag=1&filter=all&applist=all&refresh=0&aisortEndTime=0&aisortOffset=0&getAisort=0&aisortBeginTime=0&pagenum=1&externparam=undefined&firstGetGroup=0&icServerTime=0&mixnocache=0&scene=0&begintime=undefined&count=10&dayspac=undefined&sidomain=qzonestyle.gtimg.cn&useutf8=1&outputhtmlfeed=1&rd=0.5393843583969252&g_tk={tk数据值}
+  ```
