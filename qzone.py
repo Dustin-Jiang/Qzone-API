@@ -7,7 +7,7 @@ UA = 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0'
 
 qzone_cookie = {}
 
-def cookie_dict_to_str(**cookie):
+def cookie_dict_to_str(cookie):
     return '; '.join(map('='.join, cookie.items()))
 
 def cookie_str_to_dict(cookie):
@@ -34,13 +34,14 @@ def make_url(url, order=None, **args):
     return url + '?' + '&'.join(map(lambda k: k+'=%s'%args[k], order))
 
 def make_g_tk(p_skey, __cache={}, **cookie):
-    if p_skey in __cache:
-        return __cache[p_skey]
+    if str(p_skey) in __cache:
+        return __cache[str(p_skey)]
     tk = 5381
-    for c in p_skey:
-        tk += (tk<<5) + ord(c)
+    for string in p_skey:
+        for c in string:
+            tk += (tk<<5) + ord(c)
     tk &= 0x7fffffff
-    __cache[p_skey] = tk
+    __cache[str(p_skey)] = tk
     return tk
 
 class NotLoadedType:
@@ -216,7 +217,7 @@ class Emotion:
 
     def load(self):
         '''完全载入一条说说的所有信息'''
-        url = make_url('https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6',
+        url = make_url('https://user.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds3_html_more',
                 uin = self.author,
                 tid = self.tid,
                 num = 20,
@@ -230,7 +231,7 @@ class Emotion:
         for i in range(20, len(self.comments), 20):
             if len(data['commentlist']) != 20 * i:
                 break
-            url = make_url('https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v6',
+            url = make_url('https://user.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds3_html_more',
                     uin = self.author,
                     tid = self.tid,
                     num = 20,
@@ -293,24 +294,24 @@ class Emotion:
 class Qzone:
     def __init__(self, **cookie):
         global qzone_cookie
-        qzone_cookie = cookie
+        self.qzone_cookie = cookie
 
     def emotion_list_raw(self, uin, num=20, pos=0, ftype=0, sort=0, replynum=100,
             code_version=1, need_private_comment=1):
         '''获取一个用户的说说列表，返回经过json解析的原始数据'''
-        url = make_url('https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msglist_v6',
+        url = make_url('https://user.qzone.qq.com/proxy/domain/ic2.qzone.qq.com/cgi-bin/feeds/feeds3_html_more',
                 uin = uin,
                 ftype = ftype,
                 sort = sort,
                 pos = pos,
                 num = num,
                 replynum = replynum,
-                g_tk = make_g_tk(**qzone_cookie),
+                g_tk = make_g_tk(self.qzone_cookie),
                 callback = '_preloadCallback',
                 code_version = code_version,
                 format = 'jsonp',
                 need_private_comment = need_private_comment)
-        req = urllib.request.Request(url, headers={'Cookie': cookie_dict_to_str(**qzone_cookie), 'User-Agent': UA})
+        req = urllib.request.Request(url, headers={'Cookie': cookie_dict_to_str(self.qzone_cookie), 'User-Agent': UA})
         with urllib.request.urlopen(req) as http:
             s = http.read().decode(errors='surrogateescape')
         return json.loads(s[s.find('(')+1 : s.rfind(')')])
